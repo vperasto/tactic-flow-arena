@@ -26,6 +26,7 @@ interface ArrowData {
   startY: number;
   endX: number;
   endY: number;
+  type: string;
 }
 
 interface PlayData {
@@ -110,13 +111,14 @@ const StrategyBoard: React.FC = () => {
   };
 
   // Handle arrow creation
-  const handleArrowCreated = (startX: number, startY: number, endX: number, endY: number) => {
+  const handleArrowCreated = (startX: number, startY: number, endX: number, endY: number, type: string) => {
     const newArrow: ArrowData = {
       id: uuidv4(),
       startX,
       startY,
       endX,
-      endY
+      endY,
+      type
     };
     
     setArrows([...arrows, newArrow]);
@@ -220,6 +222,19 @@ const StrategyBoard: React.FC = () => {
     });
   };
 
+  // Determine if an arrow tool is active
+  const isArrowToolActive = () => {
+    return ['arrow', 'dotted-arrow', 'bidirectional-arrow', 'curved-arrow'].includes(activeTool);
+  };
+
+  // Get the current arrow type
+  const getCurrentArrowType = () => {
+    if (activeTool === 'dotted-arrow') return 'dotted-arrow';
+    if (activeTool === 'bidirectional-arrow') return 'bidirectional-arrow';
+    if (activeTool === 'curved-arrow') return 'curved-arrow';
+    return 'arrow'; // Default arrow
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold text-center mb-8 bg-gradient-action bg-clip-text text-transparent">
@@ -245,7 +260,7 @@ const StrategyBoard: React.FC = () => {
             <ul className="list-disc list-inside text-sm space-y-1 text-muted-foreground">
               <li>Use the toolbar to select different tools</li>
               <li>Add players by selecting a player tool and clicking on the court</li>
-              <li>Draw arrows by selecting the arrow tool and dragging on the court</li>
+              <li>Draw arrows by selecting an arrow tool and dragging on the court</li>
               <li>Move players by dragging them</li>
               <li>Click on an arrow to select it and modify its points</li>
               <li>Save your plays to revisit them later</li>
@@ -283,7 +298,8 @@ const StrategyBoard: React.FC = () => {
             {/* Arrow drawing tool */}
             <ArrowTool
               onArrowCreated={handleArrowCreated}
-              isActive={activeTool === 'arrow'}
+              isActive={isArrowToolActive()}
+              arrowType={getCurrentArrowType()}
             />
             
             {/* Arrows */}
@@ -299,6 +315,16 @@ const StrategyBoard: React.FC = () => {
                 >
                   <polygon points="0 0, 10 3.5, 0 7" fill="#FF4D4D" />
                 </marker>
+                <marker
+                  id="arrowhead-start"
+                  markerWidth="10"
+                  markerHeight="7"
+                  refX="10"
+                  refY="3.5"
+                  orient="auto-start-reverse"
+                >
+                  <polygon points="0 0, 10 3.5, 0 7" fill="#FF4D4D" />
+                </marker>
               </defs>
               
               {arrows.map((arrow) => (
@@ -309,6 +335,7 @@ const StrategyBoard: React.FC = () => {
                   startY={arrow.startY}
                   endX={arrow.endX}
                   endY={arrow.endY}
+                  type={arrow.type || 'arrow'}
                   onDelete={handleArrowDelete}
                   onUpdate={handleArrowUpdate}
                   selected={selectedArrow === arrow.id}

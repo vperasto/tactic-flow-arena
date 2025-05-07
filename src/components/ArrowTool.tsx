@@ -2,11 +2,12 @@
 import React, { useState, useRef } from 'react';
 
 interface ArrowToolProps {
-  onArrowCreated: (startX: number, startY: number, endX: number, endY: number) => void;
+  onArrowCreated: (startX: number, startY: number, endX: number, endY: number, type: string) => void;
   isActive: boolean;
+  arrowType: string;
 }
 
-const ArrowTool: React.FC<ArrowToolProps> = ({ onArrowCreated, isActive }) => {
+const ArrowTool: React.FC<ArrowToolProps> = ({ onArrowCreated, isActive, arrowType }) => {
   const [drawing, setDrawing] = useState(false);
   const [start, setStart] = useState({ x: 0, y: 0 });
   const [end, setEnd] = useState({ x: 0, y: 0 });
@@ -41,7 +42,72 @@ const ArrowTool: React.FC<ArrowToolProps> = ({ onArrowCreated, isActive }) => {
     // Only create an arrow if there was significant movement
     const distance = Math.sqrt(Math.pow(end.x - start.x, 2) + Math.pow(end.y - start.y, 2));
     if (distance > 10) {
-      onArrowCreated(start.x, start.y, end.x, end.y);
+      onArrowCreated(start.x, start.y, end.x, end.y, arrowType);
+    }
+  };
+
+  // Function to render a different preview based on arrow type
+  const renderArrowPreview = () => {
+    if (!drawing) return null;
+
+    switch (arrowType) {
+      case 'dotted-arrow':
+        return (
+          <line
+            x1={start.x}
+            y1={start.y}
+            x2={end.x}
+            y2={end.y}
+            stroke="#FF4D4D"
+            strokeWidth="2"
+            strokeDasharray="5,5"
+            markerEnd="url(#arrowhead)"
+          />
+        );
+      case 'bidirectional-arrow':
+        return (
+          <line
+            x1={start.x}
+            y1={start.y}
+            x2={end.x}
+            y2={end.y}
+            stroke="#FF4D4D"
+            strokeWidth="2"
+            markerEnd="url(#arrowhead)"
+            markerStart="url(#arrowhead-start)"
+          />
+        );
+      case 'curved-arrow':
+        // Calculate control point for the curve (perpendicular to the line)
+        const dx = end.x - start.x;
+        const dy = end.y - start.y;
+        const midX = (start.x + end.x) / 2;
+        const midY = (start.y + end.y) / 2;
+        // Create a perpendicular vector for the control point
+        const perpX = -dy * 0.5; // Adjust the multiplier to control the curve
+        const perpY = dx * 0.5;  // Adjust the multiplier to control the curve
+        
+        return (
+          <path
+            d={`M ${start.x} ${start.y} Q ${midX + perpX} ${midY + perpY} ${end.x} ${end.y}`}
+            stroke="#FF4D4D"
+            strokeWidth="2"
+            fill="none"
+            markerEnd="url(#arrowhead)"
+          />
+        );
+      default: // Standard arrow
+        return (
+          <line
+            x1={start.x}
+            y1={start.y}
+            x2={end.x}
+            y2={end.y}
+            stroke="#FF4D4D"
+            strokeWidth="2"
+            markerEnd="url(#arrowhead)"
+          />
+        );
     }
   };
 
@@ -70,16 +136,18 @@ const ArrowTool: React.FC<ArrowToolProps> = ({ onArrowCreated, isActive }) => {
             >
               <polygon points="0 0, 10 3.5, 0 7" fill="#FF4D4D" />
             </marker>
+            <marker
+              id="arrowhead-start"
+              markerWidth="10"
+              markerHeight="7"
+              refX="10"
+              refY="3.5"
+              orient="auto-start-reverse"
+            >
+              <polygon points="0 0, 10 3.5, 0 7" fill="#FF4D4D" />
+            </marker>
           </defs>
-          <line
-            x1={start.x}
-            y1={start.y}
-            x2={end.x}
-            y2={end.y}
-            stroke="#FF4D4D"
-            strokeWidth="2"
-            markerEnd="url(#arrowhead)"
-          />
+          {renderArrowPreview()}
         </svg>
       )}
     </div>

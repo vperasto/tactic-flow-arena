@@ -3,15 +3,14 @@ import React from 'react';
 import { cn } from '@/lib/utils';
 import { 
   Move, 
-  ArrowRight, 
+  ArrowRight,
+  ArrowRightLeft,
   Circle, 
-  Square, 
   Undo, 
   Redo, 
   Save,
   Download,
-  Trash,
-  RotateCw
+  Trash
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -41,6 +40,9 @@ const Toolbar: React.FC<ToolbarProps> = ({
   const tools = [
     { id: 'move', icon: Move, label: 'Move' },
     { id: 'arrow', icon: ArrowRight, label: 'Arrow' },
+    { id: 'dotted-arrow', icon: ArrowRight, label: 'Dotted Arrow' },
+    { id: 'bidirectional-arrow', icon: ArrowRightLeft, label: 'Two-way Arrow' },
+    { id: 'curved-arrow', icon: ArrowRight, label: 'Curved Arrow' },
     { id: 'player-home', icon: Circle, label: 'Home Player' },
     { id: 'player-away', icon: Circle, label: 'Away Player' },
   ];
@@ -56,15 +58,18 @@ const Toolbar: React.FC<ToolbarProps> = ({
             size="icon"
             className={cn(
               "aspect-square",
-              tool.id.includes('home') && "border-brand-turquoise",
-              tool.id.includes('away') && "border-brand-pink"
+              tool.id === 'dotted-arrow' && activeTool !== 'dotted-arrow' && "border-dashed",
+              tool.id === 'curved-arrow' && "rounded-full",
+              tool.id.includes('home') && "border-blue-500",
+              tool.id.includes('away') && "border-red-500"
             )}
             onClick={() => onToolSelect(tool.id)}
           >
             <tool.icon className={cn(
               "h-5 w-5",
-              tool.id.includes('home') && "text-brand-turquoise",
-              tool.id.includes('away') && "text-brand-pink"
+              tool.id.includes('home') && "text-blue-500",
+              tool.id.includes('away') && "text-red-500",
+              tool.id === 'curved-arrow' && "transform rotate-90"
             )} />
             <span className="sr-only">{tool.label}</span>
           </Button>

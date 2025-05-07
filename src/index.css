@@ -62,11 +62,11 @@
   }
 
   .player-marker-home {
-    @apply bg-brand-turquoise text-white font-bold;
+    @apply bg-blue-500 text-white font-bold;
   }
 
   .player-marker-away {
-    @apply bg-brand-pink text-white font-bold;
+    @apply bg-red-500 text-white font-bold;
   }
 
   .tool-button {

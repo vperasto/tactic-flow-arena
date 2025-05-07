@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 import { cn } from '@/lib/utils';
 
@@ -125,6 +126,7 @@ const PlayerMarker: React.FC<PlayerMarkerProps> = ({
         transform: 'translate(-50%, -50%)',
         zIndex: 10,
         cursor: isDragging.current ? 'grabbing' : 'grab',
+        backgroundColor: team === 'home' ? '#3B82F6' : '#EF4444',  // Blue for home, Red for away
       }}
       onMouseDown={handleMouseDown}
       onTouchStart={handleTouchStart}

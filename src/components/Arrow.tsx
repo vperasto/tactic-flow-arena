@@ -8,6 +8,7 @@ interface ArrowProps {
   startY: number;
   endX: number;
   endY: number;
+  type: string;
   onDelete: (id: string) => void;
   onUpdate: (id: string, startX: number, startY: number, endX: number, endY: number) => void;
   selected: boolean;
@@ -20,6 +21,7 @@ const Arrow: React.FC<ArrowProps> = ({
   startY,
   endX,
   endY,
+  type = 'arrow',
   onDelete,
   onUpdate,
   selected,
@@ -30,7 +32,7 @@ const Arrow: React.FC<ArrowProps> = ({
   const [position, setPosition] = useState({ 
     startX, startY, endX, endY 
   });
-  const arrowRef = useRef<SVGLineElement>(null);
+  const arrowRef = useRef<SVGElement>(null);
   const movingPoint = useRef<'start' | 'end' | 'whole'>(null);
 
   const handleMouseDown = (e: React.MouseEvent, point: 'start' | 'end' | 'whole') => {
@@ -90,37 +92,82 @@ const Arrow: React.FC<ArrowProps> = ({
     onDelete(id);
   };
 
-  // Calculate arrow length for hit detection
-  const length = Math.sqrt(
-    Math.pow(position.endX - position.startX, 2) + 
-    Math.pow(position.endY - position.startY, 2)
-  );
-  
-  // Calculate angle for rotation
-  const angle = Math.atan2(
-    position.endY - position.startY, 
-    position.endX - position.startX
-  ) * 180 / Math.PI;
+  const renderArrow = () => {
+    const commonProps = {
+      onClick: (e: React.MouseEvent) => {
+        e.stopPropagation();
+        onSelect(id);
+      },
+      onMouseDown: (e: React.MouseEvent) => handleMouseDown(e, 'whole'),
+      className: cn(
+        "cursor-pointer",
+        selected ? "stroke-brand-orange stroke-[3px]" : "stroke-brand-red stroke-[2px]"
+      )
+    };
+
+    switch (type) {
+      case 'dotted-arrow':
+        return (
+          <line
+            ref={arrowRef as React.RefObject<SVGLineElement>}
+            x1={position.startX}
+            y1={position.startY}
+            x2={position.endX}
+            y2={position.endY}
+            strokeDasharray="5,5"
+            markerEnd="url(#arrowhead)"
+            {...commonProps}
+          />
+        );
+      case 'bidirectional-arrow':
+        return (
+          <line
+            ref={arrowRef as React.RefObject<SVGLineElement>}
+            x1={position.startX}
+            y1={position.startY}
+            x2={position.endX}
+            y2={position.endY}
+            markerEnd="url(#arrowhead)"
+            markerStart="url(#arrowhead-start)"
+            {...commonProps}
+          />
+        );
+      case 'curved-arrow':
+        // Calculate control point for the curve
+        const dx = position.endX - position.startX;
+        const dy = position.endY - position.startY;
+        const midX = (position.startX + position.endX) / 2;
+        const midY = (position.startY + position.endY) / 2;
+        const perpX = -dy * 0.5;
+        const perpY = dx * 0.5;
+        
+        return (
+          <path
+            ref={arrowRef as React.RefObject<SVGPathElement>}
+            d={`M ${position.startX} ${position.startY} Q ${midX + perpX} ${midY + perpY} ${position.endX} ${position.endY}`}
+            fill="none"
+            markerEnd="url(#arrowhead)"
+            {...commonProps}
+          />
+        );
+      default: // Regular arrow
+        return (
+          <line
+            ref={arrowRef as React.RefObject<SVGLineElement>}
+            x1={position.startX}
+            y1={position.startY}
+            x2={position.endX}
+            y2={position.endY}
+            markerEnd="url(#arrowhead)"
+            {...commonProps}
+          />
+        );
+    }
+  };
 
   return (
     <>
-      <line
-        ref={arrowRef}
-        x1={position.startX}
-        y1={position.startY}
-        x2={position.endX}
-        y2={position.endY}
-        className={cn(
-          "cursor-pointer",
-          selected ? "stroke-brand-orange stroke-[3px]" : "stroke-brand-red stroke-[2px]"
-        )}
-        markerEnd="url(#arrowhead)"
-        onClick={(e) => {
-          e.stopPropagation();
-          onSelect(id);
-        }}
-        onMouseDown={(e) => handleMouseDown(e, 'whole')}
-      />
+      {renderArrow()}
       
       {selected && (
         <>
