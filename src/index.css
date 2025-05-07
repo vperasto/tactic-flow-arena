@@ -100,3 +100,26 @@
   stroke-width: 2;
   fill: none;
 }
+
+/* Enable touch events for better iPad support */
+@media (pointer: coarse) {
+  .player-marker {
+    width: 2.75rem;
+    height: 2.75rem;
+    font-size: 1.25rem;
+  }
+  
+  .court-container {
+    touch-action: none;
+  }
+}
+
+/* Improved iPad landscape orientation */
+@media only screen 
+  and (min-device-width: 768px) 
+  and (max-device-width: 1024px) 
+  and (orientation: landscape) {
+  .court-container {
+    height: calc(100vh - 12rem);
+  }
+}

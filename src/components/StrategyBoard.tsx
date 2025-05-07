@@ -7,6 +7,7 @@ import PlayerMarker from './PlayerMarker';
 import ArrowTool from './ArrowTool';
 import Arrow from './Arrow';
 import Toolbar from './Toolbar';
+import InstructionsDialog from './InstructionsDialog';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -47,6 +48,7 @@ const StrategyBoard: React.FC = () => {
   const [history, setHistory] = useState<{players: Player[], arrows: ArrowData[]}[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
+  const [instructionsOpen, setInstructionsOpen] = useState(false);
   const [playName, setPlayName] = useState('');
   const [plays, setPlays] = useState<PlayData[]>([]);
   
@@ -189,6 +191,11 @@ const StrategyBoard: React.FC = () => {
     });
   };
 
+  // Toggle instructions dialog
+  const handleToggleInstructions = () => {
+    setInstructionsOpen(!instructionsOpen);
+  };
+
   // Save play to localStorage
   const savePlay = () => {
     if (!playName.trim()) {
@@ -224,7 +231,7 @@ const StrategyBoard: React.FC = () => {
 
   // Determine if an arrow tool is active
   const isArrowToolActive = () => {
-    return ['arrow', 'dotted-arrow', 'bidirectional-arrow', 'curved-arrow'].includes(activeTool);
+    return ['arrow', 'dotted-arrow', 'bidirectional-arrow', 'curved-arrow', 'curved-arrow-reverse'].includes(activeTool);
   };
 
   // Get the current arrow type
@@ -232,6 +239,7 @@ const StrategyBoard: React.FC = () => {
     if (activeTool === 'dotted-arrow') return 'dotted-arrow';
     if (activeTool === 'bidirectional-arrow') return 'bidirectional-arrow';
     if (activeTool === 'curved-arrow') return 'curved-arrow';
+    if (activeTool === 'curved-arrow-reverse') return 'curved-arrow-reverse';
     return 'arrow'; // Default arrow
   };
 
@@ -253,28 +261,20 @@ const StrategyBoard: React.FC = () => {
             onExport={handleExport}
             canUndo={historyIndex > 0}
             canRedo={historyIndex < history.length - 1}
+            onToggleInstructions={handleToggleInstructions}
           />
-          
-          <div className="bg-card p-4 rounded-lg shadow-lg">
-            <h3 className="text-lg font-medium mb-2">Instructions</h3>
-            <ul className="list-disc list-inside text-sm space-y-1 text-muted-foreground">
-              <li>Use the toolbar to select different tools</li>
-              <li>Add players by selecting a player tool and clicking on the court</li>
-              <li>Draw arrows by selecting an arrow tool and dragging on the court</li>
-              <li>Move players by dragging them</li>
-              <li>Click on an arrow to select it and modify its points</li>
-              <li>Save your plays to revisit them later</li>
-            </ul>
-          </div>
         </div>
         
         <div className="relative">
           <div
             ref={courtRef}
-            className="court-container bg-court-home rounded-lg shadow-lg"
+            className="court-container rounded-lg shadow-lg"
             onClick={handleCourtClick}
             style={{ 
-              backgroundImage: 'linear-gradient(to right, #E3BC8D 50%, #CBD5E1 50%)',
+              backgroundImage: 'url(https://vperasto.github.io/koristaktiikka/img//basketball_court_full.png)',
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat',
             }}
           >
             {/* Court lines would be drawn here */}
@@ -369,6 +369,12 @@ const StrategyBoard: React.FC = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Instructions dialog */}
+      <InstructionsDialog 
+        open={instructionsOpen}
+        onOpenChange={setInstructionsOpen}
+      />
     </div>
   );
 };

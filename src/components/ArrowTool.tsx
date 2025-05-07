@@ -46,6 +46,42 @@ const ArrowTool: React.FC<ArrowToolProps> = ({ onArrowCreated, isActive, arrowTy
     }
   };
 
+  // Touch events for mobile/tablet support
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (!isActive || !courtRef.current) return;
+    
+    const courtRect = courtRef.current.getBoundingClientRect();
+    const touch = e.touches[0];
+    const startX = touch.clientX - courtRect.left;
+    const startY = touch.clientY - courtRect.top;
+    
+    setStart({ x: startX, y: startY });
+    setEnd({ x: startX, y: startY });
+    setDrawing(true);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!drawing || !isActive || !courtRef.current) return;
+    e.preventDefault(); // Prevent scrolling while drawing
+    
+    const courtRect = courtRef.current.getBoundingClientRect();
+    const touch = e.touches[0];
+    const endX = touch.clientX - courtRect.left;
+    const endY = touch.clientY - courtRect.top;
+    
+    setEnd({ x: endX, y: endY });
+  };
+
+  const handleTouchEnd = () => {
+    if (!drawing || !isActive) return;
+    
+    setDrawing(false);
+    const distance = Math.sqrt(Math.pow(end.x - start.x, 2) + Math.pow(end.y - start.y, 2));
+    if (distance > 10) {
+      onArrowCreated(start.x, start.y, end.x, end.y, arrowType);
+    }
+  };
+
   // Function to render a different preview based on arrow type
   const renderArrowPreview = () => {
     if (!drawing) return null;
@@ -96,6 +132,25 @@ const ArrowTool: React.FC<ArrowToolProps> = ({ onArrowCreated, isActive, arrowTy
             markerEnd="url(#arrowhead)"
           />
         );
+      case 'curved-arrow-reverse':
+        // Calculate control point for the curve (perpendicular to the line, opposite direction)
+        const dxRev = end.x - start.x;
+        const dyRev = end.y - start.y;
+        const midXRev = (start.x + end.x) / 2;
+        const midYRev = (start.y + end.y) / 2;
+        // Reverse the perpendicular vector
+        const perpXRev = dyRev * 0.5;
+        const perpYRev = -dxRev * 0.5;
+        
+        return (
+          <path
+            d={`M ${start.x} ${start.y} Q ${midXRev + perpXRev} ${midYRev + perpYRev} ${end.x} ${end.y}`}
+            stroke="#FF4D4D"
+            strokeWidth="2"
+            fill="none"
+            markerEnd="url(#arrowhead)"
+          />
+        );
       default: // Standard arrow
         return (
           <line
@@ -122,6 +177,9 @@ const ArrowTool: React.FC<ArrowToolProps> = ({ onArrowCreated, isActive, arrowTy
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
     >
       {drawing && (
         <svg className="absolute top-0 left-0 w-full h-full pointer-events-none">
