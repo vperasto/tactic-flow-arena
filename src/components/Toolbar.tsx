@@ -58,17 +58,17 @@ const Toolbar: React.FC<ToolbarProps> = ({
             size="icon"
             className={cn(
               "aspect-square",
-              tool.id === 'dotted-arrow' && activeTool !== 'dotted-arrow' && "border-dashed",
+              tool.id === 'dotted-arrow' && "border-dashed",
               tool.id === 'curved-arrow' && "rounded-full",
-              tool.id.includes('home') && "border-blue-500",
-              tool.id.includes('away') && "border-red-500"
+              tool.id.includes('player-home') && "border-blue-500",
+              tool.id.includes('player-away') && "border-red-500"
             )}
             onClick={() => onToolSelect(tool.id)}
           >
             <tool.icon className={cn(
               "h-5 w-5",
-              tool.id.includes('home') && "text-blue-500",
-              tool.id.includes('away') && "text-red-500",
+              tool.id.includes('player-home') && "text-blue-500",
+              tool.id.includes('player-away') && "text-red-500",
               tool.id === 'curved-arrow' && "transform rotate-90"
             )} />
             <span className="sr-only">{tool.label}</span>
