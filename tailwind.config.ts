@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,7 +62,21 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
-				}
+				},
+                // Brand colors
+                brand: {
+                    background: '#171923',
+                    red: '#FF4D4D',
+                    orange: '#FF9F1C',
+                    turquoise: '#2DD4BF',
+                    pink: '#F472B6',
+                    navy: '#1E3A8A',
+                },
+                court: {
+                    home: '#E3BC8D', // Wooden floor color
+                    away: '#CBD5E1', // Gray floor color
+                    lines: '#FFFFFF',
+                }
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
@@ -84,12 +99,20 @@ export default {
 					to: {
 						height: '0'
 					}
-				}
+				},
+                'pulse-light': {
+                    '0%, 100%': { opacity: '1' },
+                    '50%': { opacity: '0.7' }
+                }
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
-			}
+				'accordion-up': 'accordion-up 0.2s ease-out',
+                'pulse-light': 'pulse-light 2s infinite'
+			},
+            backgroundImage: {
+                'gradient-action': 'linear-gradient(90deg, #FF4D4D, #FF9F1C)'
+            }
 		}
 	},
 	plugins: [require("tailwindcss-animate")],
